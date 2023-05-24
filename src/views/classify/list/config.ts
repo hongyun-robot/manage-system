@@ -1,6 +1,11 @@
+import { ClassifyData as ClassifyDataTemp } from "@/api/types";
 import { TableHead } from "@/components/table/types";
 
-export const tableHead: TableHead[] = [
+interface ClassifyData extends ClassifyDataTemp {
+  operation?: string
+}
+
+export const tableHead: TableHead<ClassifyData>[] = [
   {
     prop: 'id',
     label: 'id'

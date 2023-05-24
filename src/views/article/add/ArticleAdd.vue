@@ -43,8 +43,9 @@
 <script lang="ts" setup>
 import { addArticle } from '@/api/article'
 import { getClassifyData } from '@/api/classify'
-import { ArticleData, ClassifyData } from '@/api/types'
+import { GetArticleRequest, ClassifyData } from '@/api/types'
 import { MdEditor } from 'md-editor-v3'
+
 const text = ref<string>('')
 const title = ref<string>('')
 const classifyData = ref<ClassifyData[]>([])
@@ -70,24 +71,24 @@ onMounted(() => {
 })
 
 const draftHandler = () => {
-  const params: ArticleData = {
+  const params: GetArticleRequest = {
     title: title.value,
     content: text.value,
     draft: true,
     status: 0,
-    classifyIds: classify.value,
+    classifyData: classify.value,
   }
   addArticle(params).then(res => {
     console.log(res)
   })
 }
 const releaseHandler = () => {
-  const params: ArticleData = {
+  const params: GetArticleRequest = {
     title: title.value,
     content: text.value,
     draft: false,
     status: 1,
-    classifyIds: classify.value,
+    classifyData: classify.value,
   }
   addArticle(params).then(res => {
     console.log(res)

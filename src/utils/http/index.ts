@@ -39,7 +39,7 @@ export const get = <D, T = any>(url: string, params?: D, config?: requestConfig<
     ...config,
     url,
     method: 'get',
-    params,
+    data: params
   }
   return http<D, T>(temp)
 }

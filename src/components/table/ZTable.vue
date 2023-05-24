@@ -3,7 +3,7 @@
     <el-table-column
       v-for="item in tableHead"
       :key="item.prop"
-      :prop="item.prop"
+      :prop="String(item.prop)"
       :label="item.label"
       v-bind="columnAttrs"
     >
@@ -31,7 +31,7 @@ import { TableHead } from './types'
 
 interface Props {
   tableData: T[]
-  tableHead: TableHead[]
+  tableHead: TableHead<T>[]
   attrs?: TableProps<T>
   columnAttrs?: TableColumnCtx<T>
 }
