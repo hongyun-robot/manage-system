@@ -26,11 +26,15 @@
         <el-button
           type="primary"
           plain
-          @click="draftHandler"
+          @click="updateArticleHandler(true)"
         >
           草稿箱
         </el-button>
-        <el-button type="primary" @click="releaseHandler">发布</el-button>
+        <el-button
+          type="primary"
+          @click="updateArticleHandler(false)"
+          >发布</el-button
+        >
       </div>
     </div>
 
@@ -41,15 +45,22 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { addArticle } from '@/api/article'
+import { addArticle, getArticleById, updateArticle } from '@/api/article'
 import { getClassifyData } from '@/api/classify'
-import { GetArticleRequest, ClassifyData } from '@/api/types'
+import type { AddArticleRequest, ClassifyData, ArticleByIdRequest, UpdateArticleRequest } from '@/api/types'
+import { ElMessage } from 'element-plus'
 import { MdEditor } from 'md-editor-v3'
+import { useRoute } from 'vue-router'
+interface Query {
+  id?: number
+}
+const { query }: { query: Query } = useRoute()
 
 const text = ref<string>('')
 const title = ref<string>('')
 const classifyData = ref<ClassifyData[]>([])
 const classify = ref<number[]>([])
+const isAdd: boolean = !Boolean(query.id)
 
 const editorSaveHandler = (value: string, html: Promise<string>) => {
   console.log(value)
@@ -66,33 +77,65 @@ const getClassify = () => {
   })
 }
 
+const getArticle = () => {
+  if (!isAdd) {
+    const params: ArticleByIdRequest = {
+      id: query.id as number,
+    }
+    getArticleById(params).then(res => {
+      if (res.message === 'SUCCESS') {
+        const data = res.data[0]
+        title.value = data.title
+        text.value = data.content
+        classify.value = data.classifyData.map(item => item.id as number)
+      }
+    })
+  }
+}
+
+const updateArticleData = (draft: boolean) => {
+  const params: UpdateArticleRequest = {
+    id: query.id,
+    title: title.value,
+    content: text.value,
+    draft,
+    status: 0,
+    classifyIds: classify.value
+  }
+  updateArticle(params).then(res => {
+    if (res.message === 'SUCCESS') {
+      getArticle()
+      ElMessage.success('修改成功')
+    }
+  })
+}
+
+const addArticleData = (draft: boolean) => {
+  const params: AddArticleRequest = {
+    title: title.value,
+    content: text.value,
+    draft,
+    status: 0,
+    classifyIds: classify.value
+  }
+  addArticle(params).then(res => {
+    if (res.message === 'SUCCESS') {
+      ElMessage.success('添加成功')
+    }
+  })
+}
+
 onMounted(() => {
+  getArticle()
   getClassify()
 })
 
-const draftHandler = () => {
-  const params: GetArticleRequest = {
-    title: title.value,
-    content: text.value,
-    draft: true,
-    status: 0,
-    classifyData: classify.value,
+const updateArticleHandler = (isDraft: boolean) => {
+  if (isAdd) {
+    addArticleData(isDraft)
+  } else {
+    updateArticleData(isDraft)
   }
-  addArticle(params).then(res => {
-    console.log(res)
-  })
-}
-const releaseHandler = () => {
-  const params: GetArticleRequest = {
-    title: title.value,
-    content: text.value,
-    draft: false,
-    status: 1,
-    classifyData: classify.value,
-  }
-  addArticle(params).then(res => {
-    console.log(res)
-  })
 }
 </script>
 <style lang="scss" scoped>

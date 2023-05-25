@@ -4,9 +4,12 @@
       :table-head="tableHead"
       :table-data="tableData"
     >
-      <template #status="{ td }">
-        <span :class="[ td.value === 0 ? 'text-rose-500' : 'text-sky-500' ]">
-          {{ td.value === 0 ? '未发布' : '已发布' }}
+      <template #draft="{ td }">
+        <span
+          :class="[td.value ? 'bg-rose-500' : 'bg-sky-500']"
+          class="text-white py-1.5 px-2.5"
+        >
+          {{ td.value ? '未发布' : '已发布' }}
         </span>
       </template>
       <template #createAt="{ td }">
@@ -16,14 +19,32 @@
         {{ dayjs(td.value).format('YYYY-MM-DD') }}
       </template>
       <template #classifyData="{ td }">
-        <span
+        <el-tag
           v-for="item in (td.value as ClassifyData[])"
           :key="item.id"
+          class="mr-1.5"
         >
-          <z-icon :icon="item.icon" class="align-middle" />
+          <z-icon
+            :icon="item.icon"
+            class="align-bottom"
+          />
           {{ item.name }}
-        </span>
-        <!-- {{ (td.value as ClassifyData[]).map(item => item.name).join(',') }} -->
+        </el-tag>
+      </template>
+      <template #operation="{ td }">
+        <el-button
+          type="warning"
+          link
+          @click="modifyHandler(td)"
+        >
+          修改
+        </el-button>
+        <el-button
+          type="danger"
+          link
+          @click="deleteHandler(td)"
+          >删除
+        </el-button>
       </template>
     </z-table>
     <el-pagination
@@ -43,9 +64,14 @@
 import ZTable from '@/components/table/ZTable.vue'
 import * as dayjs from 'dayjs'
 import { tableHead } from './config'
-import { getArticleByPaging } from '@/api/article'
-import type { ArticleData, ClassifyData, GetArticleByPagingRequest } from '@/api/types'
+import type { ArticleData } from './config'
+import { getArticleByPaging, deleteArticle } from '@/api/article'
+import type { ClassifyData, GetArticleByPagingRequest, ArticleByIdRequest } from '@/api/types'
 import ZIcon from '@/components/ZIcon.vue'
+import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
+
+const router = useRouter()
 
 const tableData = ref<ArticleData[]>([])
 const pageNum = ref<number>(1)
@@ -63,8 +89,39 @@ const getArticle = () => {
   })
 }
 
+const deleteArticleData = (id: number) => {
+  const params: ArticleByIdRequest = {
+    id,
+  }
+  deleteArticle(params).then(res => {
+    if (res.message === 'SUCCESS') {
+      ElMessage.success('删除成功')
+      getArticle()
+    }
+  })
+}
+
 const handleSizeChange = () => {}
 const handleCurrentChange = () => {}
+
+interface td {
+  row: ArticleData
+}
+
+const modifyHandler = (td: td) => {
+  console.log(td)
+  router.push({
+    path: '/article/add',
+    query: {
+      id: td.row.id,
+    },
+  })
+}
+const deleteHandler = (td: td) => {
+  if (td.row.id) {
+    deleteArticleData(td.row.id)
+  }
+}
 
 onMounted(() => {
   getArticle()

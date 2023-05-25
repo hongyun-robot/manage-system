@@ -13,10 +13,18 @@ export interface ArticleData {
 
 type ArticleDataTemp = Omit<ArticleData, 'classifyData'>
 
-export interface GetArticleRequest extends ArticleDataTemp {
-  classifyData: number[]
+export interface AddArticleRequest extends ArticleDataTemp {
+  classifyIds: number[]
+}
+
+export interface UpdateArticleRequest extends ArticleDataTemp {
+  classifyIds: number[]
 }
 
 export interface GetArticleByPagingRequest extends Paging {
   draft?: boolean
+}
+
+export interface ArticleByIdRequest {
+  id: number
 }

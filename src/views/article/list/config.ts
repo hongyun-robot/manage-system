@@ -1,4 +1,4 @@
-import type { ArticleData } from "@/api/types";
+import type { ArticleData as ArticleDataTemp } from "@/api/types";
 import { TableHead } from "@/components/table/types";
 
 // interface TableHead {
@@ -6,10 +6,9 @@ import { TableHead } from "@/components/table/types";
 //   label: string
 // }
 
-// export interface ArticleData extends ArticleDataTemp {
-//   createAt: number
-//   updateAt: number
-// }
+export interface ArticleData extends ArticleDataTemp {
+  operation?: any
+}
 
 export const tableHead: TableHead<ArticleData>[] = [
   {
@@ -25,11 +24,15 @@ export const tableHead: TableHead<ArticleData>[] = [
     label: '更新时间'
   },
   {
-    prop: 'status',
+    prop: 'draft',
     label: '状态'
   },
   {
     prop: 'classifyData',
     label: '所属分类'
+  },
+  {
+    prop: 'operation',
+    label: '操作'
   }
 ]
